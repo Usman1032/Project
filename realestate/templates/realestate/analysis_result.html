@@ -1,0 +1,200 @@
+{% extends 'realestate/base.html' %}
+{% block title %}Investment Report — {{ property.title }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h4 class="mb-1">📊 Investment Analysis Report</h4>
+    <p class="text-muted mb-0">{{ property.title }} · {{ property.location }}</p>
+  </div>
+  <a href="{% url 'add_property' %}" class="btn btn-accent btn-sm">+ New Analysis</a>
+</div>
+
+<!-- VERDICT CARD -->
+<div class="card p-4 mb-4 text-center"
+     style="background: linear-gradient(135deg,
+     {% if result.investment.recommendation == 'BUY' %}#d1fae5,#a7f3d0{% elif result.investment.recommendation == 'HOLD' %}#fef3c7,#fde68a{% else %}#fee2e2,#fecaca{% endif %});
+     border: 2px solid {% if result.investment.recommendation == 'BUY' %}#10b981{% elif result.investment.recommendation == 'HOLD' %}#f59e0b{% else %}#ef4444{% endif %};">
+  <div style="font-size:3rem">{{ result.investment.rec_icon }}</div>
+  <h2 class="fw-bold mt-2">{{ result.investment.recommendation }}</h2>
+  <p class="lead mb-2">{{ result.investment.rec_text }}</p>
+  <div class="d-inline-block px-4 py-2 rounded-pill fw-bold"
+       style="background:{% if result.investment.recommendation == 'BUY' %}#10b981{% elif result.investment.recommendation == 'HOLD' %}#f59e0b{% else %}#ef4444{% endif %};color:white;font-size:1.2rem">
+    Investment Score: {{ result.investment.investment_score }} / 100
+  </div>
+</div>
+
+<!-- KEY METRICS ROW -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card p-3 text-center h-100">
+      <small class="text-muted">ML Predicted Value</small>
+      <h5 class="text-primary fw-bold mt-1">₹{{ ml_preds.predicted_price|floatformat:0 }}</h5>
+      {% if result.price_vs_predicted > 0 %}
+        <span class="badge bg-danger">{{ result.price_vs_predicted }}% overpriced</span>
+      {% elif result.price_vs_predicted < 0 %}
+        <span class="badge bg-success">{{ result.price_vs_predicted|floatformat:1 }}% underpriced</span>
+      {% else %}
+        <span class="badge bg-secondary">Fairly priced</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 text-center h-100">
+      <small class="text-muted">Monthly EMI</small>
+      <h5 class="text-warning fw-bold mt-1">₹{{ result.emi_data.emi|floatformat:0 }}</h5>
+      <small class="text-muted">{{ result.affordability.emi_ratio }}% of salary</small>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 text-center h-100">
+      <small class="text-muted">Est. Monthly Rental</small>
+      <h5 class="text-success fw-bold mt-1">₹{{ ml_preds.predicted_rental|floatformat:0 }}</h5>
+      <small class="text-muted">{{ result.roi.rental_yield }}% yield/year</small>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 text-center h-100">
+      <small class="text-muted">Projected Value (5yr)</small>
+      <h5 class="text-info fw-bold mt-1">₹{{ ml_preds.projected_5yr|floatformat:0 }}</h5>
+      <small class="text-muted">+{{ result.roi.capital_gain_pct }}% appreciation</small>
+    </div>
+  </div>
+</div>
+
+<!-- AFFORDABILITY + ROI -->
+<div class="row g-4 mb-4">
+  <!-- Affordability -->
+  <div class="col-md-6">
+    <div class="card p-4 h-100">
+      <h6 class="mb-3">💳 Affordability Analysis</h6>
+      <div class="text-center mb-3">
+        <div class="score-circle bg-{{ result.affordability.color }} text-white">
+          {{ result.affordability.score }}
+        </div>
+        <div class="mt-2 fw-bold text-{{ result.affordability.color }}">{{ result.affordability.level }}</div>
+      </div>
+      <table class="table table-sm">
+        <tr><td>Monthly EMI</td><td class="text-end fw-bold">₹{{ result.emi_data.emi|floatformat:0 }}</td></tr>
+        <tr><td>EMI : Salary Ratio</td><td class="text-end fw-bold">{{ result.affordability.emi_ratio }}%</td></tr>
+        <tr><td>Monthly Surplus</td><td class="text-end fw-bold {% if result.affordability.monthly_surplus > 0 %}text-success{% else %}text-danger{% endif %}">₹{{ result.affordability.monthly_surplus|floatformat:0 }}</td></tr>
+        <tr><td>Total Interest ({{ analysis.loan_tenure_years }}yr)</td><td class="text-end fw-bold text-danger">₹{{ result.emi_data.total_interest|floatformat:0 }}</td></tr>
+      </table>
+      {% if result.affordability.issues %}
+      <div class="mt-2">
+        {% for issue in result.affordability.issues %}
+        <div class="alert alert-warning py-1 px-2 mb-1 small"><i class="bi bi-exclamation-circle"></i> {{ issue }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ROI -->
+  <div class="col-md-6">
+    <div class="card p-4 h-100">
+      <h6 class="mb-3">📈 Return on Investment</h6>
+      <table class="table table-sm">
+        <tr><td>Rental Yield</td><td class="text-end fw-bold text-success">{{ result.roi.rental_yield }}% / year</td></tr>
+        <tr><td>Annual Rental Income</td><td class="text-end fw-bold">₹{{ result.roi.annual_rent|floatformat:0 }}</td></tr>
+        <tr><td>5-yr Rental Income</td><td class="text-end fw-bold">₹{{ result.roi.total_rental_5yr|floatformat:0 }}</td></tr>
+        <tr><td>Capital Gain (5yr)</td><td class="text-end fw-bold text-success">₹{{ result.roi.capital_gain_5yr|floatformat:0 }}</td></tr>
+        <tr><td>Net ROI (5yr)</td><td class="text-end fw-bold text-primary">{{ result.roi.net_roi_5yr }}%</td></tr>
+      </table>
+      <div class="card bg-light p-3 mt-2 text-center">
+        <small class="text-muted">Loan Summary</small>
+        <div class="row mt-1">
+          <div class="col-4"><small>Down Payment</small><br><strong>₹{{ result.down_payment|floatformat:0 }}</strong></div>
+          <div class="col-4"><small>Loan Amount</small><br><strong>₹{{ result.loan_amount|floatformat:0 }}</strong></div>
+          <div class="col-4"><small>Rate</small><br><strong>{{ analysis.interest_rate }}%</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h6 class="mb-3">🏘️ Property Wealth Growth (5 Years)</h6>
+      <canvas id="wealthChart" height="200"></canvas>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h6 class="mb-3">💰 Loan Breakdown</h6>
+      <canvas id="loanChart" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="d-flex gap-2">
+  <a href="{% url 'analyze_property' property.pk %}" class="btn btn-outline-primary">Re-analyze</a>
+  <a href="{% url 'add_property' %}" class="btn btn-accent">Analyze Another Property</a>
+  <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const wealthLabels = {{ wealth_labels|safe }};
+const wealthValues = {{ wealth_values|safe }};
+const rentValues = {{ rent_values|safe }};
+
+new Chart(document.getElementById('wealthChart'), {
+  type: 'line',
+  data: {
+    labels: wealthLabels,
+    datasets: [
+      {
+        label: 'Property Value (₹)',
+        data: wealthValues,
+        borderColor: '#1a3c5e',
+        backgroundColor: 'rgba(26,60,94,0.08)',
+        fill: true,
+        tension: 0.4,
+      },
+      {
+        label: 'Cumulative Rental (₹)',
+        data: rentValues,
+        borderColor: '#e07b39',
+        backgroundColor: 'rgba(224,123,57,0.08)',
+        fill: true,
+        tension: 0.4,
+      }
+    ]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } },
+    scales: {
+      y: { ticks: { callback: v => '₹' + (v/100000).toFixed(0) + 'L' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('loanChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Principal', 'Total Interest'],
+    datasets: [{
+      data: [{{ emi_principal }}, {{ emi_interest }}],
+      backgroundColor: ['#1a3c5e', '#e07b39'],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: {
+        callbacks: {
+          label: ctx => '₹' + ctx.parsed.toLocaleString('en-IN')
+        }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

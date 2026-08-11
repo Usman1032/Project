@@ -1,0 +1,60 @@
+{% extends 'realestate/base.html' %}
+{% block title %}My Properties — RealEstateAI{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="mb-0">🏢 My Properties</h4>
+  <a href="{% url 'add_property' %}" class="btn btn-accent"><i class="bi bi-plus-lg"></i> Add Property</a>
+</div>
+
+{% if properties %}
+<div class="row g-3">
+  {% for prop in properties %}
+  <div class="col-md-6">
+    <div class="card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h5 class="mb-1">{{ prop.title }}</h5>
+          <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> {{ prop.location }}</p>
+        </div>
+        <span class="badge bg-secondary">{{ prop.property_type|title }}</span>
+      </div>
+      <div class="row g-2 mt-1">
+        <div class="col-6">
+          <small class="text-muted">Price</small>
+          <div class="fw-bold text-primary">₹{{ prop.price|floatformat:0 }}</div>
+        </div>
+        <div class="col-6">
+          <small class="text-muted">Area</small>
+          <div class="fw-bold">{{ prop.area_sqft }} sqft</div>
+        </div>
+        <div class="col-6">
+          <small class="text-muted">Configuration</small>
+          <div class="fw-bold">{{ prop.bhk }} BHK</div>
+        </div>
+        <div class="col-6">
+          <small class="text-muted">Price/sqft</small>
+          <div class="fw-bold">₹{{ prop.price_per_sqft|floatformat:0 }}</div>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        <a href="{% url 'analyze_property' prop.pk %}" class="btn btn-accent btn-sm flex-fill">
+          <i class="bi bi-graph-up"></i> Run Analysis
+        </a>
+        <form method="post" action="{% url 'delete_property' prop.pk %}" onsubmit="return confirm('Delete this property?')">
+          {% csrf_token %}
+          <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted card p-5">
+  <div style="font-size:3rem">🏠</div>
+  <h5 class="mt-3">No properties added yet</h5>
+  <p>Add a property to start your AI-powered investment analysis.</p>
+  <a href="{% url 'add_property' %}" class="btn btn-accent mt-2">Add Your First Property</a>
+</div>
+{% endif %}
+{% endblock %}

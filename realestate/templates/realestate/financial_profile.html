@@ -1,0 +1,51 @@
+{% extends 'realestate/base.html' %}
+{% block title %}Financial Profile — RealEstateAI{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h4 class="mb-1">💼 Your Financial Profile</h4>
+      <p class="text-muted mb-4">This information is used to calculate affordability and personalize your investment analysis.</p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          {% for field in form %}
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors|join:", " }}</div>{% endif %}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <hr class="my-4">
+        {% if profile %}
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card bg-light p-3 text-center">
+              <small class="text-muted">Monthly Disposable</small>
+              <h5 class="mb-0 text-success">₹{{ profile.monthly_disposable|floatformat:0 }}</h5>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-light p-3 text-center">
+              <small class="text-muted">Safe EMI Limit (40%)</small>
+              <h5 class="mb-0 text-primary">₹{{ profile.safe_emi_limit|floatformat:0 }}</h5>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-light p-3 text-center">
+              <small class="text-muted">Risk Tolerance</small>
+              <h5 class="mb-0 text-warning">{{ profile.risk_tolerance|title }}</h5>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-accent w-100 py-2">
+          {% if profile %}Update Profile{% else %}Save Profile{% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

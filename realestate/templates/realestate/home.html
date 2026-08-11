@@ -1,0 +1,63 @@
+{% extends 'realestate/base.html' %}
+{% block title %}RealEstateAI — Smart Investment Decisions{% endblock %}
+{% block content %}
+<!-- Hero -->
+<div class="py-5 text-center" style="background: linear-gradient(135deg, #1a3c5e, #2d6a9f); border-radius: 16px; color: white; margin-bottom: 40px;">
+  <h1 class="display-5 fw-bold mb-3">🏠 AI-Powered Real Estate<br>Investment Platform</h1>
+  <p class="lead mb-4 opacity-75">Predict property values · Calculate EMI & ROI · Get Buy/Hold/Avoid recommendations</p>
+  <a href="{% url 'register' %}" class="btn btn-accent btn-lg me-2 px-4">Get Started Free</a>
+  <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">Login</a>
+</div>
+
+<!-- Features -->
+<div class="row g-4 mb-5">
+  <div class="col-md-4">
+    <div class="card p-4 text-center h-100">
+      <div style="font-size:2.5rem">🤖</div>
+      <h5 class="mt-3">ML Price Prediction</h5>
+      <p class="text-muted">Our machine learning model predicts fair property value and rental income based on location, size, and market data.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-4 text-center h-100">
+      <div style="font-size:2.5rem">📊</div>
+      <h5 class="mt-3">Financial Analysis</h5>
+      <p class="text-muted">Calculates EMI, ROI, affordability score, and cash flow tailored to your personal income and expenses.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-4 text-center h-100">
+      <div style="font-size:2.5rem">✅</div>
+      <h5 class="mt-3">Smart Recommendation</h5>
+      <p class="text-muted">Receive a BUY, HOLD, or AVOID recommendation with an investment score based on 4 financial factors.</p>
+    </div>
+  </div>
+</div>
+
+<!-- How it works -->
+<div class="card p-4 mb-5">
+  <h4 class="mb-4 text-center">How It Works</h4>
+  <div class="row text-center">
+    <div class="col-md-3">
+      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-2" style="width:50px;height:50px;font-weight:700">1</div>
+      <p class="fw-semibold">Set Your Financial Profile</p>
+      <p class="text-muted small">Enter salary, savings, and risk tolerance</p>
+    </div>
+    <div class="col-md-3">
+      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-2" style="width:50px;height:50px;font-weight:700">2</div>
+      <p class="fw-semibold">Add a Property</p>
+      <p class="text-muted small">Enter location, price, area and BHK details</p>
+    </div>
+    <div class="col-md-3">
+      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-2" style="width:50px;height:50px;font-weight:700">3</div>
+      <p class="fw-semibold">Run AI Analysis</p>
+      <p class="text-muted small">ML predicts value; engine calculates EMI & ROI</p>
+    </div>
+    <div class="col-md-3">
+      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-2" style="width:50px;height:50px;font-weight:700">4</div>
+      <p class="fw-semibold">Get Your Report</p>
+      <p class="text-muted small">Investment score + BUY / HOLD / AVOID verdict</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

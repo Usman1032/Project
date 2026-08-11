@@ -1,0 +1,73 @@
+{% extends 'realestate/base.html' %}
+{% block title %}Analyze Property — RealEstateAI{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <!-- Property Summary -->
+    <div class="card p-4 mb-4" style="border-left: 4px solid var(--accent);">
+      <h5 class="mb-3">📋 Property: {{ property.title }}</h5>
+      <div class="row g-3">
+        <div class="col-md-3 text-center">
+          <small class="text-muted">Location</small>
+          <div class="fw-bold">{{ property.location }}</div>
+        </div>
+        <div class="col-md-3 text-center">
+          <small class="text-muted">Price</small>
+          <div class="fw-bold text-primary">₹{{ property.price|floatformat:0 }}</div>
+        </div>
+        <div class="col-md-3 text-center">
+          <small class="text-muted">Area</small>
+          <div class="fw-bold">{{ property.area_sqft }} sqft</div>
+        </div>
+        <div class="col-md-3 text-center">
+          <small class="text-muted">Configuration</small>
+          <div class="fw-bold">{{ property.bhk }} BHK</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Your Financial Summary -->
+    <div class="card p-4 mb-4 bg-light">
+      <h6 class="mb-3">💰 Your Financial Profile</h6>
+      <div class="row g-2">
+        <div class="col-md-4">
+          <small class="text-muted">Monthly Salary</small>
+          <div class="fw-semibold">₹{{ profile.monthly_salary|floatformat:0 }}</div>
+        </div>
+        <div class="col-md-4">
+          <small class="text-muted">Monthly Expenses</small>
+          <div class="fw-semibold">₹{{ profile.monthly_expenses|floatformat:0 }}</div>
+        </div>
+        <div class="col-md-4">
+          <small class="text-muted">Total Savings</small>
+          <div class="fw-semibold">₹{{ profile.total_savings|floatformat:0 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loan Configuration -->
+    <div class="card p-4">
+      <h5 class="mb-4">🏦 Configure Loan & Run Analysis</h5>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          {% for field in form %}
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors|join:", " }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="alert alert-info mt-4 mb-3">
+          <i class="bi bi-cpu"></i> <strong>AI Analysis will:</strong>
+          predict fair market value · estimate rental income · calculate EMI & ROI · generate investment score
+        </div>
+        <button type="submit" class="btn btn-accent w-100 py-2 fw-bold">
+          🚀 Run AI Investment Analysis
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

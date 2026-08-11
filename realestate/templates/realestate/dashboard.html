@@ -1,0 +1,99 @@
+{% extends 'realestate/base.html' %}
+{% block title %}Dashboard — RealEstateAI{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="mb-0">Welcome back, {{ user.first_name|default:user.username }} 👋</h3>
+    <p class="text-muted mb-0">Here's your investment overview</p>
+  </div>
+  <a href="{% url 'add_property' %}" class="btn btn-accent"><i class="bi bi-plus-lg"></i> Analyze New Property</a>
+</div>
+
+{% if not has_profile %}
+<div class="alert alert-warning">
+  <i class="bi bi-exclamation-triangle"></i>
+  <strong>Action Required:</strong> Please <a href="{% url 'financial_profile' %}">set up your financial profile</a> before analyzing properties.
+</div>
+{% endif %}
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card p-3 stat-card">
+      <p class="text-muted small mb-1">Total Properties</p>
+      <h3 class="mb-0 fw-bold">{{ total_properties }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 stat-card">
+      <p class="text-muted small mb-1">Analyses Run</p>
+      <h3 class="mb-0 fw-bold">{{ analyses|length }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 stat-card">
+      <p class="text-muted small mb-1">BUY Recommendations</p>
+      <h3 class="mb-0 fw-bold text-success">{{ buy_count }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 stat-card">
+      <p class="text-muted small mb-1">Avg Investment Score</p>
+      <h3 class="mb-0 fw-bold text-primary">{{ avg_score }}/100</h3>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Analyses -->
+<div class="card p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">Recent Analyses</h5>
+    <a href="{% url 'analysis_history' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+  </div>
+  {% if analyses %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Property</th>
+          <th>Location</th>
+          <th>Price</th>
+          <th>EMI/mo</th>
+          <th>Score</th>
+          <th>Recommendation</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in analyses %}
+        <tr>
+          <td><strong>{{ a.property.title }}</strong><br><small class="text-muted">{{ a.property.bhk }} BHK · {{ a.property.area_sqft }} sqft</small></td>
+          <td>{{ a.property.location }}</td>
+          <td>₹{{ a.property.price|floatformat:0 }}</td>
+          <td>₹{{ a.emi|floatformat:0 }}</td>
+          <td>
+            <div class="progress" style="height:8px;min-width:80px">
+              <div class="progress-bar bg-{% if a.investment_score >= 70 %}success{% elif a.investment_score >= 45 %}warning{% else %}danger{% endif %}"
+                   style="width:{{ a.investment_score }}%"></div>
+            </div>
+            <small>{{ a.investment_score }}/100</small>
+          </td>
+          <td>
+            <span class="badge badge-{% if a.recommendation == 'BUY' %}buy{% elif a.recommendation == 'HOLD' %}hold{% else %}avoid{% endif %} px-3 py-2">
+              {{ a.recommendation }}
+            </span>
+          </td>
+          <td><a href="{% url 'analysis_result' a.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <div style="font-size:3rem">📊</div>
+    <p class="mt-2">No analyses yet. <a href="{% url 'add_property' %}">Add your first property</a> to get started.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
